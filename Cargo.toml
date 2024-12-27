@@ -8,7 +8,7 @@ version = "0.1.0"
 repository = ""
 authors = ["Mimanshu Maheshwari <maheshwarimimanshu@gmail.com>"]
 description = "Secrets Manager: to manage secrets file in local for personal projects."
-rust-version = "1.82"
+rust-version = "1.83.0"
 
 # [dependencies]
 # clap = { version = "4.5.23", features = ["derive"] }
