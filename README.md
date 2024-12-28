@@ -23,4 +23,5 @@
 ### User can create/remove/modify versions:
 ### User can create/remove/modify Global Environments Variables:
 
-
+## Structure: 
+Project -> File -> Environment -> Version
