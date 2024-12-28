@@ -38,13 +38,13 @@ impl ProjectBuilder {
 mod tests {
     use std::collections::HashMap;
 
-    use crate::{FileHandlerBuilder, Project, ProjectBuilder};
+    use crate::{Environment, FileHandlerBuilder, Project, ProjectBuilder};
 
     #[test]
     fn create_project_using_builder() {
         let file = FileHandlerBuilder::new("secret.yaml")
             .creation_path("/etc/secrets")
-            .content("name: mintika")
+            .environment(Environment::default())
             .build();
         let builder: ProjectBuilder = ProjectBuilder::new("mitnika").file(file.clone());
         let actual_project: Project = builder.build();
