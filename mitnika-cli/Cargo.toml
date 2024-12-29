@@ -1,0 +1,12 @@
+[package]
+name = "mitnika-cli"
+edition = "2021"
+version.workspace = true
+repository.workspace = true
+authors.workspace = true
+description.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+clap = { version = "4.5.23", features = ["derive"] }
+commons = { path = "../commons" }

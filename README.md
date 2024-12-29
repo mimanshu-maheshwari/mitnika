@@ -22,6 +22,7 @@
 ### User can create/remove/modify environments:
 ### User can create/remove/modify versions:
 ### User can create/remove/modify Global Environments Variables:
+### User should be able to backup all data somewhere in local only
 
 ## Structure: 
 Project -> File -> Environment -> Version

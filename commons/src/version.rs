@@ -12,3 +12,18 @@ impl Default for Version {
         }
     }
 }
+impl Version {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_owned(),
+            content: String::new(),
+        }
+    }
+
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub fn set_content(&mut self, content: &str) {
+        self.content = content.to_owned();
+    }
+}

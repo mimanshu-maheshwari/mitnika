@@ -17,6 +17,14 @@ impl FileHandler {
     pub fn get_creation_path(&self) -> &str {
         &self.creation_path
     }
+    pub fn set_environment(&mut self, env: Option<Environment>) {
+        if let Some(env) = env {
+            self.environment
+                .entry(env.get_name().to_owned())
+                .and_modify(|v| *v = env.clone())
+                .or_insert(env);
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -84,12 +92,9 @@ impl FileHandlerBuilder<FileHandlerBuilderStateCreationPath> {
 mod tests {
     use std::collections::HashMap;
 
-    use crate::{
-        file_handler::{
-            FileHandler, FileHandlerBuilder, FileHandlerBuilderStateCreationPath,
-            FileHandlerBuilderStateName,
-        },
-        Environment,
+    use crate::file_handler::{
+        FileHandler, FileHandlerBuilder, FileHandlerBuilderStateCreationPath,
+        FileHandlerBuilderStateName,
     };
 
     #[test]

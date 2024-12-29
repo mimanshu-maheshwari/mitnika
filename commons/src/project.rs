@@ -8,6 +8,13 @@ pub struct Project {
     pub files: HashMap<String, FileHandler>,
 }
 
+impl Project {
+    pub fn add_file(&mut self, file_handler: FileHandler) -> Option<FileHandler> {
+        self.files
+            .insert(file_handler.get_name().to_owned(), file_handler)
+    }
+}
+
 pub struct ProjectBuilder {
     name: String,
     files: HashMap<String, FileHandler>,
@@ -36,9 +43,9 @@ impl ProjectBuilder {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
 
     use crate::{Environment, FileHandlerBuilder, Project, ProjectBuilder};
+    use std::collections::HashMap;
 
     #[test]
     fn create_project_using_builder() {
