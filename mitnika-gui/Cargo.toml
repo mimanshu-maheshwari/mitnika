@@ -10,6 +10,7 @@ rust-version.workspace = true
 [dependencies]
 dirs-next = "2.0"
 iced = { version = "^0.13" }
+commons = { path = "../commons" }
 
 [build-dependencies]
 iced_fontello = "0.13"

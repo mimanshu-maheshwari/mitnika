@@ -2,7 +2,7 @@ use std::{collections::HashMap, marker::PhantomData};
 
 use crate::{Environment, DEFAULT_STRING};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct FileHandler {
     file_name: String,
     environment: HashMap<String, Environment>,

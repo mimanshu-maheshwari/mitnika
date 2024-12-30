@@ -2,7 +2,7 @@ use crate::FileHandler;
 
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Project {
     pub name: String,
     pub files: HashMap<String, FileHandler>,

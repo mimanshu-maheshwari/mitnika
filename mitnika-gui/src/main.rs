@@ -1,40 +1,70 @@
-use iced::widget::{button, column, text};
-use iced::Element;
-use iced::Theme;
+use commons::Mitnika;
+use iced::{
+    widget::{column, container, text, text_input},
+    Element, Theme,
+};
 
-pub fn main() -> iced::Result {
-    iced::application("Mitnika", update, view)
-        .theme(theme)
+fn main() -> iced::Result {
+    iced::application("Mitnika", State::update, State::view)
+        .theme(State::theme)
         .run()
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+struct State {
+    mitnika: Mitnika,
+    screen: Screen,
+    value: String,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+struct ProjectScreen;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum Message {
-    Increment,
-    Decrement,
-}
-#[derive(Default, Debug, Clone)]
-struct Counter {
-    value: i64,
+    SearchChanged(String),
 }
 
-fn theme(_state: &Counter) -> Theme {
-    Theme::TokyoNight
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum Screen {
+    Project(ProjectScreen),
 }
 
-fn update(counter: &mut Counter, message: Message) {
-    match message {
-        Message::Increment => counter.value += 1,
-        Message::Decrement => counter.value -= 1,
+impl Default for Screen {
+    fn default() -> Self {
+        Self::Project(ProjectScreen)
     }
 }
 
-fn view(counter: &Counter) -> Element<Message> {
-    column![
-        button("Decrement").on_press(Message::Decrement),
-        text(counter.value).size(20),
-        button("Increment").on_press(Message::Increment),
-    ]
-    .spacing(10)
-    .into()
+impl State {
+    pub fn new() -> Self {
+        Self {
+            screen: Screen::Project(ProjectScreen),
+            mitnika: Mitnika::new(),
+            value: String::from("default"),
+        }
+    }
+
+    fn theme(&self) -> Theme {
+        Theme::TokyoNight
+    }
+
+    pub fn update(&mut self, message: Message) {
+        match message {
+            Message::SearchChanged(value) => {
+                self.value = value;
+            }
+        }
+    }
+
+    pub fn view(&self) -> Element<Message> {
+        let search = text_input("Search Project", &self.value)
+            .size(20)
+            .padding(10)
+            .on_input(Message::SearchChanged);
+        let value = text(self.value.clone());
+        container(column![search, value].spacing(10))
+            .padding(10)
+            .into()
+    }
 }

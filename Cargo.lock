@@ -2443,6 +2443,7 @@ dependencies = [
 name = "mitnika-gui"
 version = "0.1.0"
 dependencies = [
+ "commons",
  "dirs-next",
  "iced",
  "iced_fontello",
