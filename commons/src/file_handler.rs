@@ -1,6 +1,6 @@
 use std::{collections::HashMap, marker::PhantomData};
 
-use crate::Environment;
+use crate::{Environment, DEFAULT_STRING};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FileHandler {
@@ -17,6 +17,21 @@ impl FileHandler {
     pub fn get_creation_path(&self) -> &str {
         &self.creation_path
     }
+
+    pub fn get_environment(&self, env_name: &str) -> Option<&Environment> {
+        self.environment.get(env_name)
+    }
+
+    pub fn get_environment_mut(&mut self, env_name: &str) -> Option<&mut Environment> {
+        self.environment.get_mut(env_name)
+    }
+
+    pub fn add_environment(&mut self, env_name: &str) {
+        self.environment
+            .entry(env_name.to_string())
+            .or_insert(Environment::new(env_name));
+    }
+
     pub fn set_environment(&mut self, env: Option<Environment>) {
         if let Some(env) = env {
             self.environment
@@ -24,6 +39,18 @@ impl FileHandler {
                 .and_modify(|v| *v = env.clone())
                 .or_insert(env);
         }
+    }
+
+    pub fn get_default_environment(&mut self) -> Option<&Environment> {
+        self.environment.get(DEFAULT_STRING)
+    }
+
+    pub fn get_default_environment_mut(&mut self) -> Option<&mut Environment> {
+        self.environment.get_mut(DEFAULT_STRING)
+    }
+
+    pub fn delete_environment(&mut self, environment_name: &str) {
+        self.environment.remove(environment_name);
     }
 }
 

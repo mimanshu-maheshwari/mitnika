@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Version;
+use crate::{Version, DEFAULT_STRING};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Environment {
@@ -32,20 +32,31 @@ impl Environment {
         &self.name
     }
 
-    pub fn set_version(&mut self, version: Option<Version>) {
-        if let Some(version) = version {
-            self.version
-                .entry(version.get_name().to_owned())
-                .and_modify(|ve| *ve = version.clone())
-                .or_insert(version);
-        }
+    pub fn version(&mut self, version: Version) {
+        self.version
+            .entry(version.get_name().to_owned())
+            .and_modify(|v| *v = version.clone())
+            .or_insert(version);
     }
 
-    pub fn get_version(&self, version_name: Option<&str>) -> Option<&Version> {
-        if let Some(name) = version_name {
-            self.version.get(name)
-        } else {
-            self.version.get("default")
-        }
+    pub fn add_version(&mut self, version: &str) {
+        self.version
+            .entry(version.to_owned())
+            .or_insert(Version::new(version));
+    }
+
+    pub fn get_version(&self, version_name: &str) -> Option<&Version> {
+        self.version.get(version_name)
+    }
+
+    pub fn get_version_mut(&mut self, version_name: &str) -> Option<&mut Version> {
+        self.version.get_mut(version_name)
+    }
+
+    pub fn get_default_version_mut(&mut self) -> Option<&mut Version> {
+        self.get_version_mut(DEFAULT_STRING)
+    }
+    pub fn delete_version(&mut self, version_name: &str) {
+        self.version.remove(version_name);
     }
 }

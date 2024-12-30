@@ -1,0 +1,10 @@
+[package]
+name = "mitnika-gui"
+edition = "2021"
+version.workspace = true
+repository.workspace = true
+authors.workspace = true
+description.workspace = true
+rust-version.workspace = true
+
+[dependencies]

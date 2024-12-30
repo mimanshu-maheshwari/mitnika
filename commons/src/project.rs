@@ -13,6 +13,18 @@ impl Project {
         self.files
             .insert(file_handler.get_name().to_owned(), file_handler)
     }
+
+    pub fn get_file(&self, file_name: &str) -> Option<&FileHandler> {
+        self.files.get(file_name)
+    }
+
+    pub fn get_file_mut(&mut self, file_name: &str) -> Option<&mut FileHandler> {
+        self.files.get_mut(file_name)
+    }
+
+    pub fn delete_file(&mut self, file_name: &str) {
+        self.files.remove(file_name);
+    }
 }
 
 pub struct ProjectBuilder {

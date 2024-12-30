@@ -1,5 +1,5 @@
 [workspace]
-members = ["commons", "mitnika-cli"]
+members = ["commons", "mitnika-cli", "mitnika-gui"]
 resolver = "2"
 default-members = ["mitnika-cli"]
 
