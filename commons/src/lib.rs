@@ -7,7 +7,10 @@ mod version;
 pub type Result<T> = std::result::Result<T, MitnikaError>;
 pub const DEFAULT_STRING: &str = "default";
 
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 pub use environment::Environment;
 pub use error::MitnikaError;
@@ -51,5 +54,32 @@ impl Mitnika {
 
     pub fn get_project_mut(&mut self, name: &str) -> Option<&mut Project> {
         self.projects.get_mut(name)
+    }
+
+    pub fn get_project_names(&self) -> Vec<String> {
+        self.projects.keys().cloned().collect()
+    }
+    pub fn get_projects(&self) -> Vec<Arc<Mutex<Project>>> {
+        self.projects
+            .values()
+            .map(|v| Arc::new(Mutex::new(v.clone())))
+            .collect()
+    }
+
+    pub fn search_projects(&self, search: &str) -> Vec<Arc<Mutex<Project>>> {
+        let mut pattern = String::new();
+        pattern.push_str(".*");
+        pattern.push_str(search);
+        pattern.push_str(".*");
+        let keys: Vec<_> = self
+            .projects
+            .keys()
+            .filter(|key| key.contains(&pattern))
+            .collect();
+        self.projects
+            .iter()
+            .filter(|(key, _)| keys.contains(key))
+            .map(|(_, val)| Arc::new(Mutex::new(val.clone())))
+            .collect()
     }
 }

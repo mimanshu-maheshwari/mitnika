@@ -5,8 +5,8 @@ use crate::{Environment, DEFAULT_STRING};
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct FileHandler {
     file_name: String,
-    environment: HashMap<String, Environment>,
     creation_path: String,
+    environment: HashMap<String, Environment>,
 }
 
 impl FileHandler {
@@ -51,6 +51,10 @@ impl FileHandler {
 
     pub fn delete_environment(&mut self, environment_name: &str) {
         self.environment.remove(environment_name);
+    }
+
+    pub fn get_environment_names(&self) -> Vec<String> {
+        self.environment.keys().cloned().collect()
     }
 }
 

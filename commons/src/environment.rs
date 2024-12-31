@@ -56,7 +56,12 @@ impl Environment {
     pub fn get_default_version_mut(&mut self) -> Option<&mut Version> {
         self.get_version_mut(DEFAULT_STRING)
     }
+
     pub fn delete_version(&mut self, version_name: &str) {
         self.version.remove(version_name);
+    }
+
+    pub fn get_version_names(&self) -> Vec<String> {
+        self.version.keys().cloned().collect()
     }
 }

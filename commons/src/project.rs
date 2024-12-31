@@ -9,6 +9,10 @@ pub struct Project {
 }
 
 impl Project {
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
     pub fn add_file(&mut self, file_handler: FileHandler) -> Option<FileHandler> {
         self.files
             .insert(file_handler.get_name().to_owned(), file_handler)
@@ -24,6 +28,9 @@ impl Project {
 
     pub fn delete_file(&mut self, file_name: &str) {
         self.files.remove(file_name);
+    }
+    pub fn get_file_names(&self) -> Vec<String> {
+        self.files.keys().cloned().collect()
     }
 }
 
