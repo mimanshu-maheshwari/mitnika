@@ -8,4 +8,21 @@ description.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-# clap = { version = "4.5.23", features = ["derive"] }
+
+# SerDe 
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = { version = "1.0.134" }
+
+# Utilities
+regex = { version = "1.11.1" }
+directories = { version = "5.0" }
+
+# Uuid
+[dependencies.uuid]
+version = "1.11.0"
+features = [
+  "v4",                # Lets you generate random UUIDs
+  "fast-rng",          # Use a faster (but still sufficiently random) RNG
+  "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+  "serde",
+]

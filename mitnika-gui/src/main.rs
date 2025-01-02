@@ -8,5 +8,5 @@ fn main() -> iced::Result {
     )
     .window(iced::window::Settings::default())
     .theme(MitnikaState::theme)
-    .run()
+    .run_with(MitnikaState::new)
 }

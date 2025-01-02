@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use commons::Project;
 
 #[derive(Debug, Clone)]
@@ -10,8 +8,10 @@ pub enum MitnikaMessageKind {
 
 #[derive(Debug, Clone)]
 pub enum ProjectMessage {
-    SelectProject(Arc<Mutex<Project>>),
-    SearchProject(String),
+    Select(Project),
+    Search(String),
+    Create(String),
+    SwitchToAddScreen,
 }
 
 #[derive(Debug, Clone)]

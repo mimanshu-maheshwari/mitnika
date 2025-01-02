@@ -9,6 +9,9 @@ pub enum MitnikaError {
     FileCreationPathRequired(String),
     EnvironmentNotFound(String),
     VersionNotFound(String),
+    LocalUserDirectoryNotFound(String),
+    UnableToReadDataFile(String),
+    UnableToParseDataFile(String),
 }
 
 impl Error for MitnikaError {}
@@ -35,6 +38,15 @@ impl Display for MitnikaError {
             }
             Self::VersionNotFound(ver_name) => {
                 writeln!(f, "Version not found [{ver_name}].")
+            }
+            Self::LocalUserDirectoryNotFound(err) => {
+                writeln!(f, "Unable to find local user directory: [{err}]")
+            }
+            Self::UnableToReadDataFile(err) => {
+                writeln!(f, "Unable to read data file: [{err}]")
+            }
+            Self::UnableToParseDataFile(err) => {
+                writeln!(f, "Unable to parse data file: [{err}]")
             }
         }
     }

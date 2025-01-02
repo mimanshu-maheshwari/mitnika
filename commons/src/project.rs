@@ -1,36 +1,59 @@
+use serde::{Deserialize, Serialize};
+
 use crate::FileHandler;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::Hash};
 
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize)]
 pub struct Project {
+    #[serde(with = "uuid::serde::simple")]
+    pub id: uuid::Uuid,
     pub name: String,
     pub files: HashMap<String, FileHandler>,
 }
 
+impl Hash for Project {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+
 impl Project {
-    pub fn get_name(&self) -> &str {
+    pub fn id(&self) -> &uuid::Uuid {
+        &self.id
+    }
+
+    pub fn name(&self) -> &str {
         &self.name
     }
 
-    pub fn add_file(&mut self, file_handler: FileHandler) -> Option<FileHandler> {
+    pub fn update_name(&mut self, name: &str) {
+        self.name = name.to_owned();
+    }
+
+    pub fn update_file(&mut self, new_file: FileHandler) {
+        if let Some(f) = self.files.get_mut(&new_file.id().to_string()) {
+            *f = new_file;
+        }
+    }
+
+    pub fn add_file(&mut self, file_handler: FileHandler) {
         self.files
-            .insert(file_handler.get_name().to_owned(), file_handler)
+            .entry(file_handler.id().to_string())
+            .and_modify(|f| *f = file_handler.clone())
+            .or_insert(file_handler);
     }
 
-    pub fn get_file(&self, file_name: &str) -> Option<&FileHandler> {
-        self.files.get(file_name)
+    pub fn file(&self, id: &uuid::Uuid) -> Option<&FileHandler> {
+        self.files.get(&id.to_string())
     }
 
-    pub fn get_file_mut(&mut self, file_name: &str) -> Option<&mut FileHandler> {
-        self.files.get_mut(file_name)
+    pub fn file_mut(&mut self, id: &uuid::Uuid) -> Option<&mut FileHandler> {
+        self.files.get_mut(&id.to_string())
     }
 
-    pub fn delete_file(&mut self, file_name: &str) {
-        self.files.remove(file_name);
-    }
-    pub fn get_file_names(&self) -> Vec<String> {
-        self.files.keys().cloned().collect()
+    pub fn delete_file(&mut self, id: &uuid::Uuid) {
+        self.files.remove(&id.to_string());
     }
 }
 
@@ -43,17 +66,18 @@ impl ProjectBuilder {
     pub fn new(name: &str) -> Self {
         ProjectBuilder {
             name: name.to_owned(),
-            files: HashMap::new(),
+            files: Default::default(),
         }
     }
 
     pub fn file(mut self, file: FileHandler) -> Self {
-        self.files.insert(file.get_name().to_owned(), file);
+        self.files.insert(file.id().to_string(), file);
         self
     }
 
     pub fn build(self) -> Project {
         Project {
+            id: uuid::Uuid::new_v4(),
             name: self.name,
             files: self.files,
         }
@@ -63,8 +87,9 @@ impl ProjectBuilder {
 #[cfg(test)]
 mod tests {
 
-    use crate::{Environment, FileHandlerBuilder, Project, ProjectBuilder};
     use std::collections::HashMap;
+
+    use crate::{Environment, FileHandlerBuilder, Project, ProjectBuilder};
 
     #[test]
     fn create_project_using_builder() {
@@ -74,12 +99,12 @@ mod tests {
             .build();
         let builder: ProjectBuilder = ProjectBuilder::new("mitnika").file(file.clone());
         let actual_project: Project = builder.build();
-        let mut hash_map = HashMap::new();
-        hash_map.insert(file.get_name().to_owned(), file.clone());
-        let expected_project: Project = Project {
+        let mut expected_project: Project = Project {
+            id: actual_project.id().to_owned(),
             name: String::from("mitnika"),
-            files: hash_map,
+            files: HashMap::new(),
         };
+        expected_project.add_file(file.clone());
         assert_eq!(expected_project, actual_project);
     }
 }

@@ -16,5 +16,7 @@ codegen-units = 1
 opt-level = 3
 
 [workspace.dependencies]
+# mitnika selfs
 commons = { path = "commons" }
 cli = { path = "mitnika-cli" }
+gui = { path = "mitnika-gui" }

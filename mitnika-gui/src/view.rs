@@ -1,12 +1,10 @@
-use std::sync::{Arc, Mutex};
+use commons::MITNIKA_TITLE;
+use iced::{window, Theme};
 
-use commons::Project;
-use iced::{
-    widget::{row, text},
-    window, Element, Theme,
-};
-
-use crate::{MitnikaMessageKind, MitnikaState, ProjectMessage};
+pub mod file;
+pub mod project;
+pub use file::{FileScreen, FileView};
+pub use project::{ProjectAddScreen, ProjectEditScreen, ProjectShowScreen, ProjectView};
 
 #[derive(Debug, Clone)]
 pub struct MitnikaView {
@@ -17,7 +15,7 @@ pub struct MitnikaView {
 impl Default for MitnikaView {
     fn default() -> Self {
         Self {
-            title: String::from("Mitnika"),
+            title: String::from(MITNIKA_TITLE),
             theme: Theme::TokyoNight,
         }
     }
@@ -38,65 +36,12 @@ impl MitnikaView {
 
 #[derive(Debug, Clone)]
 pub enum MitnikaScreen {
-    Project(ProjectScreen),
-    File(FileScreen),
+    Project(ProjectView),
+    File(FileView),
 }
 
 impl Default for MitnikaScreen {
     fn default() -> Self {
-        Self::Project(ProjectScreen::default())
-    }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct ProjectScreen {
-    selected_project: Arc<Mutex<Project>>,
-}
-
-impl ProjectScreen {
-    pub fn update(&mut self, message: MitnikaMessageKind) {
-        todo!();
-    }
-
-    pub fn view(&self) -> Element<MitnikaMessageKind> {
-        let selected_project = self
-            .selected_project
-            .lock()
-            .expect("Unable to get lock on selected prject");
-        row![text(selected_project.get_name().to_owned())]
-            .spacing(20)
-            .into()
-    }
-
-    pub fn handle_message(&mut self, message: MitnikaMessageKind) {
-        match message {
-            MitnikaMessageKind::Project(project_mesage) => match project_mesage {
-                ProjectMessage::SelectProject(project_ref) => {
-                    todo!();
-                }
-                ProjectMessage::SearchProject(value) => {
-                    println!("{value}");
-                }
-            },
-            MitnikaMessageKind::File(file_mesage) => {
-                todo!();
-            }
-        }
-    }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct FileScreen;
-impl FileScreen {
-    pub fn update(&mut self, message: MitnikaMessageKind) {
-        todo!();
-    }
-
-    pub fn view(&self) -> Element<MitnikaMessageKind> {
-        todo!();
-    }
-
-    pub fn handle_message(&mut self, message: MitnikaMessageKind) {
-        todo!()
+        Self::Project(ProjectView::default())
     }
 }
