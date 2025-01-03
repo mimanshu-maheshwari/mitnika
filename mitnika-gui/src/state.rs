@@ -109,13 +109,15 @@ impl MitnikaState {
     pub fn sidebar(&self) -> Element<MitnikaMessageKind> {
         // search bar for projects
         let search = text_input("Search Project", &self.project_search)
-            .on_input(|value| MitnikaMessageKind::Project(ProjectMessage::Search(value)));
+            .on_input(|value| MitnikaMessageKind::Project(ProjectMessage::Search(value)))
+            .align_x(Alignment::Start);
         let mut project_column = column![search];
 
         // projects selection buttons
+        let mut buttons = column![];
         let filterd_projects = self.data.search_projects(&self.project_search, false);
         for project in filterd_projects {
-            project_column = project_column.push(
+            buttons = buttons.push(
                 button(text(project.name().to_owned()))
                     .on_press(MitnikaMessageKind::Project(ProjectMessage::Select(
                         project.clone(),
@@ -123,16 +125,25 @@ impl MitnikaState {
                     .width(Length::Fill),
             );
         }
+        project_column = project_column.push(
+            container(scrollable(buttons))
+                .width(Length::Fill)
+                .align_x(Alignment::Start)
+                .align_y(Alignment::Start),
+        );
 
         // button to add projects
-        let add_new_project_button = button(text(String::from("Add Project"))).on_press(
+        let add_new_project_button = container(button(text(String::from("Add Project"))).on_press(
             MitnikaMessageKind::Project(ProjectMessage::SwitchToAddScreen),
-        );
+        ))
+        .width(Length::Fill)
+        .align_x(Alignment::Start)
+        .align_y(Alignment::End);
         project_column = project_column.push(add_new_project_button);
         project_column = project_column.padding(10).spacing(10);
 
         // group data
-        let sidebar = container(scrollable(project_column))
+        let sidebar = container(project_column)
             .padding(10)
             .width(Length::FillPortion(1))
             .height(Length::Fill)
