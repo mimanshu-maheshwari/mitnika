@@ -99,7 +99,7 @@ impl MitnikaState {
             .padding(10)
             .width(Length::FillPortion(5))
             .height(Length::Fill)
-            .align_x(Alignment::End)
+            .align_x(Alignment::Start)
             .align_y(Alignment::Start);
 
         let view_row = container(row![left_part, right_part]);
