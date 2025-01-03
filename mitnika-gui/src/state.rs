@@ -115,10 +115,10 @@ impl MitnikaState {
         .height(Length::FillPortion(1))
         .align_x(Alignment::Start);
 
-        let mut project_column = column![search];
+        let mut project_column = column![search].spacing(10);
 
         // projects selection buttons
-        let mut buttons = column![];
+        let mut buttons = column![].spacing(10);
         let filterd_projects = self.data.search_projects(&self.project_search, false);
         for project in filterd_projects {
             buttons = buttons.push(
@@ -126,7 +126,7 @@ impl MitnikaState {
                     .on_press(MitnikaMessageKind::Project(ProjectMessage::Select(
                         project.clone(),
                     )))
-                    .padding(10)
+                    // .padding(10)
                     .width(Length::Fill),
             );
         }
@@ -156,7 +156,7 @@ impl MitnikaState {
         // group data
         let sidebar = container(project_column)
             .padding(10)
-            .width(Length::FillPortion(1))
+            .width(Length::FillPortion(2))
             .height(Length::Fill)
             .align_x(Alignment::Start)
             .align_y(Alignment::Start);

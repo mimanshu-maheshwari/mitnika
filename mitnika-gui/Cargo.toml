@@ -9,7 +9,7 @@ rust-version.workspace = true
 
 [dependencies]
 dirs-next = "2.0"
-iced = { version = "^0.13" }
+iced = { version = "^0.13", features = ["image"] }
 commons = { path = "../commons" }
 
 [build-dependencies]
