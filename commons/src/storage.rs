@@ -132,12 +132,7 @@ impl MitnikaData {
     }
 
     pub fn add_project(&mut self, name: &str) {
-        if self
-            .projects()
-            .into_iter()
-            .find(|p| p.name() == name)
-            .is_none()
-        {
+        if !name.is_empty() && !self.projects().into_iter().any(|p| p.name() == name) {
             let project = ProjectBuilder::new(name).build();
             self.projects.insert(project.id().to_string(), project);
         }
