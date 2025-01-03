@@ -108,9 +108,13 @@ impl MitnikaState {
 
     pub fn sidebar(&self) -> Element<MitnikaMessageKind> {
         // search bar for projects
-        let search = text_input("Search Project", &self.project_search)
-            .on_input(|value| MitnikaMessageKind::Project(ProjectMessage::Search(value)))
-            .align_x(Alignment::Start);
+        let search = container(
+            text_input("Search Project", &self.project_search)
+                .on_input(|value| MitnikaMessageKind::Project(ProjectMessage::Search(value))),
+        )
+        .height(Length::FillPortion(1))
+        .align_x(Alignment::Start);
+
         let mut project_column = column![search];
 
         // projects selection buttons
@@ -122,21 +126,28 @@ impl MitnikaState {
                     .on_press(MitnikaMessageKind::Project(ProjectMessage::Select(
                         project.clone(),
                     )))
+                    .padding(10)
                     .width(Length::Fill),
             );
         }
         project_column = project_column.push(
-            container(scrollable(buttons))
+            container(scrollable(buttons).spacing(10))
                 .width(Length::Fill)
                 .align_x(Alignment::Start)
-                .align_y(Alignment::Start),
+                .align_y(Alignment::Start)
+                .height(Length::FillPortion(8)),
         );
 
         // button to add projects
-        let add_new_project_button = container(button(text(String::from("Add Project"))).on_press(
-            MitnikaMessageKind::Project(ProjectMessage::SwitchToAddScreen),
-        ))
+        let add_new_project_button = container(
+            button(text(String::from("Add Project")))
+                .on_press(MitnikaMessageKind::Project(
+                    ProjectMessage::SwitchToAddScreen,
+                ))
+                .width(Length::Fill),
+        )
         .width(Length::Fill)
+        .height(Length::FillPortion(1))
         .align_x(Alignment::Start)
         .align_y(Alignment::End);
         project_column = project_column.push(add_new_project_button);

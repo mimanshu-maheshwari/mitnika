@@ -132,8 +132,15 @@ impl MitnikaData {
     }
 
     pub fn add_project(&mut self, name: &str) {
-        let project = ProjectBuilder::new(name).build();
-        self.projects.insert(project.id().to_string(), project);
+        if self
+            .projects()
+            .into_iter()
+            .find(|p| p.name() == name)
+            .is_none()
+        {
+            let project = ProjectBuilder::new(name).build();
+            self.projects.insert(project.id().to_string(), project);
+        }
     }
 
     pub fn projects(&self) -> Vec<&Project> {
