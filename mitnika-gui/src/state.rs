@@ -1,7 +1,7 @@
 use commons::Storage;
 
 use iced::{
-    widget::{button, column, container, row, text, text_input},
+    widget::{button, column, container, row, scrollable, text, text_input},
     window, Alignment, Element, Length, Task, Theme,
 };
 
@@ -33,7 +33,7 @@ impl MitnikaState {
 
     pub fn new() -> (Self, Task<MitnikaMessageKind>) {
         let data = Storage::default();
-        let screen = MitnikaScreen::Project(ProjectView::default());
+        let screen = MitnikaScreen::default();
         let project_search = String::new();
         let view = MitnikaView::default();
         (
@@ -57,14 +57,21 @@ impl MitnikaState {
                 }
                 ProjectMessage::Search(search_value) => {
                     self.project_search = search_value.clone();
-                    self.data.search_projects(&search_value, false);
                 }
                 ProjectMessage::Create(project_name) => {
                     self.data.add_project(&project_name);
+                    if let MitnikaScreen::Project(ProjectView::Add(add_screen)) = &mut self.screen {
+                        add_screen.update_project_name("");
+                    }
                 }
                 ProjectMessage::SwitchToAddScreen => {
                     self.screen =
                         MitnikaScreen::Project(ProjectView::Add(ProjectAddScreen::default()));
+                }
+                ProjectMessage::NewProjectName(name) => {
+                    if let MitnikaScreen::Project(ProjectView::Add(add_screen)) = &mut self.screen {
+                        add_screen.update_project_name(&name);
+                    }
                 }
             },
             MitnikaMessageKind::File(_file_message) => {}
@@ -72,17 +79,7 @@ impl MitnikaState {
     }
 
     pub fn view(&self) -> Element<MitnikaMessageKind> {
-        // let search = text_input("Search Project", &self.project_search)
-        //     .on_input(|value| MitnikaMessageKind::Project(ProjectMessage::Search(value)));
-        // let mut project_row = row![search];
-        // let projects = self.data.projects();
-        // for project in projects {
-        //     project_row = project_row.push(button(text(project.name().to_owned())).on_press(
-        //         MitnikaMessageKind::Project(ProjectMessage::Select(project.clone())),
-        //     ));
-        // }
-
-        let left_part = self.sidebar(); // container(project_row);
+        let left_part = self.sidebar();
 
         let right_part = match &self.screen {
             MitnikaScreen::File(file_screen) => match file_screen {
@@ -92,40 +89,55 @@ impl MitnikaState {
                 FileView::Show(show_screen) => show_screen.view(),
             },
             MitnikaScreen::Project(project_screen) => match project_screen {
+                ProjectView::Empty(empty_screen) => empty_screen.view(),
                 ProjectView::Add(add_screen) => add_screen.view(),
                 ProjectView::Show(show_screen) => show_screen.view(),
                 ProjectView::Edit(edit_screen) => edit_screen.view(),
             },
         };
-
-        column![left_part, right_part]
-            .spacing(10)
+        let right_part = container(right_part)
             .padding(10)
-            .into()
+            .width(Length::FillPortion(5))
+            .height(Length::Fill)
+            .align_x(Alignment::End)
+            .align_y(Alignment::Start);
+
+        let view_row = container(row![left_part, right_part]);
+        view_row.into()
     }
 
     pub fn sidebar(&self) -> Element<MitnikaMessageKind> {
+        // search bar for projects
         let search = text_input("Search Project", &self.project_search)
             .on_input(|value| MitnikaMessageKind::Project(ProjectMessage::Search(value)));
-        let mut project_row = row![search];
-        let projects = self.data.projects();
-        for project in projects {
-            project_row = project_row.push(button(text(project.name().to_owned())).on_press(
-                MitnikaMessageKind::Project(ProjectMessage::Select(project.clone())),
-            ));
+        let mut project_column = column![search];
+
+        // projects selection buttons
+        let filterd_projects = self.data.search_projects(&self.project_search, false);
+        for project in filterd_projects {
+            project_column = project_column.push(
+                button(text(project.name().to_owned()))
+                    .on_press(MitnikaMessageKind::Project(ProjectMessage::Select(
+                        project.clone(),
+                    )))
+                    .width(Length::Fill),
+            );
         }
+
+        // button to add projects
         let add_new_project_button = button(text(String::from("Add Project"))).on_press(
             MitnikaMessageKind::Project(ProjectMessage::SwitchToAddScreen),
         );
-        project_row = project_row.push(add_new_project_button);
-        project_row = project_row.padding(10).spacing(10);
+        project_column = project_column.push(add_new_project_button);
+        project_column = project_column.padding(10).spacing(10);
 
-        let left_part = container(project_row)
+        // group data
+        let sidebar = container(scrollable(project_column))
             .padding(10)
             .width(Length::FillPortion(1))
             .height(Length::Fill)
             .align_x(Alignment::Start)
-            .align_y(Alignment::End);
-        left_part.into()
+            .align_y(Alignment::Start);
+        sidebar.into()
     }
 }

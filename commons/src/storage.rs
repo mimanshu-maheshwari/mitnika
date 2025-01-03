@@ -141,7 +141,7 @@ impl MitnikaData {
     }
 
     pub fn search_projects(&self, search: &str, exact: bool) -> Vec<&Project> {
-        if search.is_empty() {
+        if search.trim().is_empty() {
             return self.projects();
         }
         let mut pat = String::new();

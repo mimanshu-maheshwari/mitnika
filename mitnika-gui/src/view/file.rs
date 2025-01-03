@@ -6,12 +6,18 @@ use crate::MitnikaMessageKind;
 pub enum FileView {
     #[default]
     Empty,
-    Show(FileScreen),
+    Show(FileShowScreen),
 }
 
+// impl Default for FileView {
+//     fn default() -> Self {
+//         Self::Show(FileShowScreen::default())
+//     }
+// }
+
 #[derive(Debug, Clone, Default)]
-pub struct FileScreen;
-impl FileScreen {
+pub struct FileShowScreen;
+impl FileShowScreen {
     pub fn _update(&mut self, _message: MitnikaMessageKind) {
         todo!();
     }

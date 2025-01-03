@@ -3,8 +3,8 @@ use iced::{window, Theme};
 
 pub mod file;
 pub mod project;
-pub use file::{FileScreen, FileView};
-pub use project::{ProjectAddScreen, ProjectEditScreen, ProjectShowScreen, ProjectView};
+pub use file::FileView;
+pub use project::{ProjectAddScreen, ProjectShowScreen, ProjectView};
 
 #[derive(Debug, Clone)]
 pub struct MitnikaView {

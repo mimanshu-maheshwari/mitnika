@@ -1,6 +1,6 @@
 use commons::Project;
 use iced::{
-    widget::{row, text, text_input},
+    widget::{container, row, text, text_input},
     Element,
 };
 
@@ -8,6 +8,7 @@ use crate::{MitnikaMessageKind, ProjectMessage};
 
 #[derive(Debug, Clone)]
 pub enum ProjectView {
+    Empty(ProjectEmptyScreen),
     Show(ProjectShowScreen),
     Edit(ProjectEditScreen),
     Add(ProjectAddScreen),
@@ -15,10 +16,21 @@ pub enum ProjectView {
 
 impl Default for ProjectView {
     fn default() -> Self {
-        Self::Show(ProjectShowScreen::default())
+        Self::Empty(ProjectEmptyScreen)
     }
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct ProjectEmptyScreen;
+impl ProjectEmptyScreen {
+    pub fn update(&mut self, _message: MitnikaMessageKind) {
+        todo!();
+    }
+
+    pub fn view(&self) -> Element<MitnikaMessageKind> {
+        container(text("Select/Modify/Add Project")).into()
+    }
+}
 #[derive(Debug, Clone, Default)]
 pub struct ProjectShowScreen {
     selected_project: Project,
@@ -69,11 +81,19 @@ impl ProjectAddScreen {
         todo!();
     }
 
+    pub fn update_project_name(&mut self, name: &str) {
+        self.project_name = name.to_owned();
+    }
+
     pub fn view(&self) -> Element<MitnikaMessageKind> {
         row![
-            text_input("Enter name for project", &self.project_name).on_submit(
-                MitnikaMessageKind::Project(ProjectMessage::Create(self.project_name.clone()))
-            ),
+            text_input("Enter name for project", &self.project_name)
+                .on_input(
+                    |value| MitnikaMessageKind::Project(ProjectMessage::NewProjectName(value))
+                )
+                .on_submit(MitnikaMessageKind::Project(ProjectMessage::Create(
+                    self.project_name.clone()
+                ))),
             text(&self.project_name)
         ]
         .spacing(20)

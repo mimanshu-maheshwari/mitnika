@@ -12,6 +12,7 @@ pub enum ProjectMessage {
     Search(String),
     Create(String),
     SwitchToAddScreen,
+    NewProjectName(String),
 }
 
 #[derive(Debug, Clone)]
