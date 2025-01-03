@@ -97,7 +97,7 @@ impl MitnikaState {
         };
         let right_part = container(right_part)
             .padding(10)
-            .width(Length::FillPortion(5))
+            .width(Length::FillPortion(7))
             .height(Length::Fill)
             .align_x(Alignment::Start)
             .align_y(Alignment::Start);

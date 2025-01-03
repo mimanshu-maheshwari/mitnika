@@ -2566,6 +2566,7 @@ dependencies = [
  "dirs-next",
  "iced",
  "iced_fontello",
+ "once_cell",
 ]
 
 [[package]]
