@@ -1,5 +1,5 @@
 [package]
-name = "mitnika-cli"
+name = "cli"
 edition = "2021"
 version.workspace = true
 repository.workspace = true
@@ -9,4 +9,4 @@ rust-version.workspace = true
 
 [dependencies]
 clap = { version = "4.5.23", features = ["derive"] }
-commons = { path = "../commons" }
+core = { path = "../mitnika-core" }

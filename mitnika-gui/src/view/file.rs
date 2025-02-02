@@ -1,4 +1,4 @@
-use commons::Project;
+use core::Project;
 use iced::{
     widget::{row, text_input},
     Element,

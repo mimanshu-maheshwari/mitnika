@@ -1,5 +1,5 @@
 [workspace]
-members = ["commons", "mitnika-cli", "mitnika-gui"]
+members = ["mitnika-*"]
 resolver = "2"
 default-members = ["mitnika-gui"]
 
@@ -17,6 +17,6 @@ opt-level = 3
 
 [workspace.dependencies]
 # mitnika selfs
-commons = { path = "commons" }
+core = { path = "mitnika-core" }
 cli = { path = "mitnika-cli" }
 gui = { path = "mitnika-gui" }

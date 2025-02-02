@@ -1,4 +1,4 @@
-use commons::Storage;
+use core::Storage;
 
 use iced::{
     widget::{button, column, container, row, scrollable, text, text_input},

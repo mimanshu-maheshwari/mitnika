@@ -1,4 +1,4 @@
-use commons::MITNIKA_TITLE;
+use core::MITNIKA_TITLE;
 use iced::{window, Theme};
 
 pub mod file;

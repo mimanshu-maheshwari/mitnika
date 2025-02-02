@@ -1,4 +1,4 @@
-use commons::{FileHandler, Project};
+use core::{FileHandler, Project};
 
 #[derive(Debug, Clone)]
 pub enum MitnikaMessageKind {

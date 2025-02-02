@@ -1,4 +1,4 @@
-use commons::Project;
+use core::Project;
 use iced::{
     widget::{button, column, container, row, text, text_input},
     Alignment, Element, Length,

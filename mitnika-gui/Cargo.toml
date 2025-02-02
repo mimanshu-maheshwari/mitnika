@@ -1,5 +1,5 @@
 [package]
-name = "mitnika-gui"
+name = "gui"
 edition = "2021"
 version.workspace = true
 repository.workspace = true
@@ -12,7 +12,7 @@ rust-version.workspace = true
 iced = { version = "^0.13", features = ["image"] }
 
 # mitnika deps
-commons = { path = "../commons" }
+core = { path = "../mitnika-core" }
 
 # utils
 dirs-next = "2.0"
