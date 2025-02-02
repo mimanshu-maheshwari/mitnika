@@ -1,3 +1,4 @@
+pub mod app;
 mod message;
 mod state;
 mod view;

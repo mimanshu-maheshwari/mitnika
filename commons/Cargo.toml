@@ -8,6 +8,11 @@ description.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+# async 
+tokio = { version = "1.43.0", features = ["full"] }
+
+# sqlx tokio (no TLS)
+sqlx = { version = "0.8.3", features = ["sqlite", "runtime-tokio-native-tls"] }
 
 # SerDe 
 serde = { version = "1.0.217", features = ["derive"] }
@@ -15,7 +20,7 @@ serde_json = { version = "1.0.134" }
 
 # Utilities
 regex = { version = "1.11.1" }
-directories = { version = "5.0" }
+directories = { version = "6.0" }
 
 # Uuid
 [dependencies.uuid]

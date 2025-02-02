@@ -9,7 +9,7 @@ pub use environment::Environment;
 pub use error::MitnikaError;
 pub use file_handler::{FileHandler, FileHandlerBuilder};
 pub use project::{Project, ProjectBuilder};
-pub use storage::{MitnikaData, Storage};
+pub use storage::Storage;
 pub use version::Version;
 
 pub type Result<T> = std::result::Result<T, MitnikaError>;
@@ -25,6 +25,9 @@ pub const AVIDVIVARTA_UPPER: &str = "AVIDVIVARTA";
 pub const AVIDVIVARTA_TITLE: &str = "AvidVivarta";
 
 pub const MM: &str = "mm";
+
+const SQLITE_FILE: &str = "data";
+const SQLITE_FILE_EXTENSION: &str = "db";
 
 const DATA_FILE: &str = "projects.json";
 const EXTENSION: &str = "json";

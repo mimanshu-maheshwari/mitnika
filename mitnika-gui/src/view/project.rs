@@ -1,10 +1,10 @@
 use commons::Project;
 use iced::{
-    widget::{container, row, text, text_input},
-    Element,
+    widget::{button, column, container, row, text, text_input},
+    Alignment, Element, Length,
 };
 
-use crate::{MitnikaMessageKind, ProjectMessage};
+use crate::{FileMessage, MitnikaMessageKind, ProjectMessage};
 
 #[derive(Debug, Clone)]
 pub enum ProjectView {
@@ -45,9 +45,34 @@ impl ProjectShowScreen {
     }
 
     pub fn view(&self) -> Element<MitnikaMessageKind> {
-        row![text(self.selected_project.name().to_owned())]
-            .spacing(20)
-            .into()
+        let edit_button = container(button(text("Edit".to_owned())));
+        let header_text = container(text(self.selected_project.name().to_owned()));
+        let header_row = row![header_text, edit_button].spacing(10);
+        let files_name = self.selected_project.files().values();
+        let mut file_buttons = column![].spacing(10);
+        for file_handler in files_name {
+            file_buttons = file_buttons.push(
+                button(text(file_handler.name().to_owned()))
+                    .on_press(MitnikaMessageKind::File(FileMessage::Select(
+                        file_handler.clone(),
+                    )))
+                    // .padding(10)
+                    .width(Length::Fill),
+            );
+        }
+        let add_file_button = container(
+            button(text(String::from("Add File")))
+                .on_press(MitnikaMessageKind::File(FileMessage::SwitchToAddScreen))
+                .width(Length::Fill),
+        )
+        .width(Length::Fill)
+        .height(Length::FillPortion(1))
+        .align_x(Alignment::Start)
+        .align_y(Alignment::End);
+        file_buttons = file_buttons.push(add_file_button);
+        let data_row = row![file_buttons].spacing(10);
+        let cols = column![header_row, data_row].spacing(10);
+        container(cols).into()
     }
 }
 

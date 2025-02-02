@@ -1,4 +1,4 @@
-use commons::Project;
+use commons::{FileHandler, Project};
 
 #[derive(Debug, Clone)]
 pub enum MitnikaMessageKind {
@@ -17,5 +17,9 @@ pub enum ProjectMessage {
 
 #[derive(Debug, Clone)]
 pub enum FileMessage {
-    None,
+    Select(FileHandler),
+    Search(String),
+    Create(String),
+    SwitchToAddScreen,
+    NewFileName(String),
 }

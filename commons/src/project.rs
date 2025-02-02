@@ -2,21 +2,21 @@ use serde::{Deserialize, Serialize};
 
 use crate::FileHandler;
 
-use std::{collections::HashMap, hash::Hash};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize)]
 pub struct Project {
     #[serde(with = "uuid::serde::simple")]
     pub id: uuid::Uuid,
     pub name: String,
-    pub files: HashMap<String, FileHandler>,
+    files: HashMap<String, FileHandler>,
 }
 
-impl Hash for Project {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.id.hash(state);
-    }
-}
+// impl Hash for Project {
+//     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+//         self.id.hash(state);
+//     }
+// }
 
 impl Project {
     pub fn id(&self) -> &uuid::Uuid {
@@ -54,6 +54,10 @@ impl Project {
 
     pub fn delete_file(&mut self, id: &uuid::Uuid) {
         self.files.remove(&id.to_string());
+    }
+
+    pub fn files(&self) -> &HashMap<String, FileHandler> {
+        &self.files
     }
 }
 

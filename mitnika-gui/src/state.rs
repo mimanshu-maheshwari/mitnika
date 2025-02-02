@@ -7,7 +7,7 @@ use iced::{
 
 use crate::{
     view::{FileView, ProjectAddScreen, ProjectShowScreen, ProjectView},
-    MitnikaMessageKind, MitnikaScreen, MitnikaView, ProjectMessage,
+    FileMessage, MitnikaMessageKind, MitnikaScreen, MitnikaView, ProjectMessage,
 };
 
 #[derive(Debug, Default, Clone)]
@@ -32,7 +32,7 @@ impl MitnikaState {
     }
 
     pub fn new() -> (Self, Task<MitnikaMessageKind>) {
-        let data = Storage::default();
+        let data = Storage::new();
         let screen = MitnikaScreen::default();
         let project_search = String::new();
         let view = MitnikaView::default();
@@ -74,7 +74,13 @@ impl MitnikaState {
                     }
                 }
             },
-            MitnikaMessageKind::File(_file_message) => {}
+            MitnikaMessageKind::File(file_message) => match file_message {
+                FileMessage::Select(_file_handler) => {}
+                FileMessage::Search(_search_string) => {}
+                FileMessage::Create(_file_name) => {}
+                FileMessage::SwitchToAddScreen => {}
+                FileMessage::NewFileName(_file_name) => {}
+            },
         }
     }
 
@@ -87,6 +93,7 @@ impl MitnikaState {
                     todo!()
                 }
                 FileView::Show(show_screen) => show_screen.view(),
+                FileView::Add(add_screen) => add_screen.view(),
             },
             MitnikaScreen::Project(project_screen) => match project_screen {
                 ProjectView::Empty(empty_screen) => empty_screen.view(),

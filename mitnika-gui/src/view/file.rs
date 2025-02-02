@@ -1,4 +1,8 @@
-use iced::Element;
+use commons::Project;
+use iced::{
+    widget::{row, text_input},
+    Element,
+};
 
 use crate::MitnikaMessageKind;
 
@@ -7,6 +11,7 @@ pub enum FileView {
     #[default]
     Empty,
     Show(FileShowScreen),
+    Add(FileAddScreen),
 }
 
 // impl Default for FileView {
@@ -24,5 +29,27 @@ impl FileShowScreen {
 
     pub fn view(&self) -> Element<MitnikaMessageKind> {
         todo!();
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct FileAddScreen {
+    file_name: String,
+    _project: Project,
+}
+
+impl FileAddScreen {
+    pub fn update(&mut self, _message: MitnikaMessageKind) {
+        todo!();
+    }
+
+    pub fn update_project_name(&mut self, name: &str) {
+        self.file_name = name.to_owned();
+    }
+
+    pub fn view(&self) -> Element<MitnikaMessageKind> {
+        row![text_input("Enter name for File", &self.file_name)]
+            .spacing(20)
+            .into()
     }
 }
