@@ -14,7 +14,7 @@ use crate::{
 pub struct MitnikaState {
     screen: MitnikaScreen,
     data: Storage,
-    project_search: String,
+    // project_search: String,
     view: MitnikaView,
 }
 
@@ -40,7 +40,7 @@ impl MitnikaState {
             Self {
                 data,
                 screen,
-                project_search,
+                // project_search,
                 view,
             },
             Task::none(),
@@ -56,7 +56,7 @@ impl MitnikaState {
                     self.screen = MitnikaScreen::Project(ProjectView::Show(screen));
                 }
                 ProjectMessage::Search(search_value) => {
-                    self.project_search = search_value.clone();
+                    // self.project_search = search_value.clone();
                 }
                 ProjectMessage::Create(project_name) => {
                     self.data.add_project(&project_name);
@@ -126,7 +126,7 @@ impl MitnikaState {
 
         // projects selection buttons
         let mut buttons = column![].spacing(10);
-        let filterd_projects = self.data.search_projects(&self.project_search, false);
+        let filterd_projects = self.data.search_projects("", false);
         for project in filterd_projects {
             buttons = buttons.push(
                 button(text(project.name().to_owned()))

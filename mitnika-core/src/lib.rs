@@ -29,5 +29,5 @@ pub const MM: &str = "mm";
 const SQLITE_FILE: &str = "data";
 const SQLITE_FILE_EXTENSION: &str = "db";
 
-const DATA_FILE: &str = "projects.json";
-const EXTENSION: &str = "json";
+const _DATA_FILE: &str = "projects.json";
+const _EXTENSION: &str = "json";

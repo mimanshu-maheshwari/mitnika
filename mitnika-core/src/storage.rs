@@ -1,20 +1,10 @@
-use std::{
-    collections::HashMap,
-    fs::{self, File},
-    io::{BufReader, Read, Write},
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::{fs, sync::Arc};
 
 use directories::ProjectDirs;
-use regex::Regex;
-use serde::{Deserialize, Serialize};
+// use regex::Regex;
 use sqlx::{migrate::MigrateDatabase, sqlite::SqliteQueryResult, Sqlite, SqlitePool};
 
-use crate::{
-    MitnikaError, Project, ProjectBuilder, Result, AVIDVIVARTA_LOWER, DATA_FILE, DEFAULT_STRING,
-    EXTENSION, MITNIKA_LOWER, MM, SQLITE_FILE, SQLITE_FILE_EXTENSION,
-};
+use crate::{Project, AVIDVIVARTA_LOWER, MITNIKA_LOWER, MM, SQLITE_FILE, SQLITE_FILE_EXTENSION};
 
 #[derive(Debug, Clone)]
 pub struct Storage {
@@ -48,7 +38,7 @@ impl Storage {
         }
     }
 
-    pub fn add_project(&mut self, project_name: &str) {
+    pub fn add_project(&mut self, _project_name: &str) {
         todo!()
         //     // self.data.add_project(project_name);
         //     let mut file = Self::get_data_file(true).unwrap();
@@ -64,16 +54,16 @@ impl Storage {
         todo!();
     }
 
-    pub fn search_projects(&self, search: &str, exact: bool) -> Vec<&Project> {
+    pub fn search_projects(&self, _search: &str, _exact: bool) -> Vec<&Project> {
         // self.data.search_projects(search, exact)
-        todo!();
+        todo!("Search Projects unimplemented");
     }
 
     async fn get_db_pool() -> std::result::Result<SqlitePool, sqlx::Error> {
         let dir_path = Self::get_dir();
         // println!("{dir_path:?}");
         // let canonical_path = Self::convert_windows_to_linux_path(&dir_path);
-        let mut db_url = format!(
+        let db_url = format!(
             "sqlite:///{}",
             dir_path.to_str().expect("Unable to load data file.")
         );
