@@ -12,6 +12,10 @@ pub enum MitnikaError {
     LocalUserDirectoryNotFound(String),
     UnableToReadDataFile(String),
     UnableToParseDataFile(String),
+    PoolNotCreated,
+    ProjectUserDirectoryNotCreated,
+    SQLiteFileNotCreated,
+    SQLiteDBError(String),
 }
 
 impl Error for MitnikaError {}
@@ -48,6 +52,12 @@ impl Display for MitnikaError {
             Self::UnableToParseDataFile(err) => {
                 writeln!(f, "Unable to parse data file: [{err}]")
             }
+            Self::PoolNotCreated => writeln!(f, "Error creating DB connection Pool"),
+            Self::ProjectUserDirectoryNotCreated => {
+                writeln!(f, "Unable to create project user directories")
+            }
+            Self::SQLiteDBError(e) => writeln!(f, "Error occured while db operation: {}", e),
+            Self::SQLiteFileNotCreated => writeln!(f, "Unable to create SQLite file"),
         }
     }
 }
