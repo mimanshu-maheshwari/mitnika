@@ -1,7 +1,7 @@
 [workspace]
 members = ["mitnika-*"]
 resolver = "2"
-default-members = ["mitnika-gui"]
+default-members = ["mitnika-cli"]
 
 [workspace.package]
 version = "0.1.0"

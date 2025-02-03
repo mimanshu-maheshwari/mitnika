@@ -111,6 +111,11 @@ impl SQLiteDB {
         &self,
         name: &str,
     ) -> std::result::Result<Option<Project>, MitnikaError> {
+        if let Ok(projects) = self.search_project(name, true).await {
+            if !projects.is_empty() {
+                return Err(MitnikaError::ProjectAlreadyExists);
+            }
+        }
         let id = uuid::Uuid::new_v4().to_string();
         let result = sqlx::query(PROJECT_CREATE_PROJECT_QUERY)
             .bind(&id)
@@ -118,11 +123,16 @@ impl SQLiteDB {
             .execute(&self.pool)
             .await
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))?;
-
         println!("Added project: {result:?}");
+        self.find_project_by_id(&id).await
+    }
 
+    pub async fn find_project_by_id(
+        &self,
+        id: &str,
+    ) -> std::result::Result<Option<Project>, MitnikaError> {
         sqlx::query_as(PROJECT_FIND_PROJECT_BY_ID)
-            .bind(&id)
+            .bind(id)
             .fetch_optional(&self.pool)
             .await
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))

@@ -25,11 +25,13 @@ impl Storage {
         }
     }
 
-    pub fn add_project(&mut self, name: &str) {
+    pub fn add_project(&self, name: &str) -> Option<Project> {
         if let Ok(rt) = tokio::runtime::Runtime::new()
             .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))
         {
-            let _ = rt.block_on(self.db.create_project(name));
+            rt.block_on(self.db.create_project(name)).unwrap_or(None)
+        } else {
+            None
         }
     }
 
@@ -39,6 +41,15 @@ impl Storage {
         {
             Ok(rt) => rt.block_on(self.db.get_all_projects()).unwrap_or_default(),
             Err(_) => vec![],
+        }
+    }
+
+    pub fn project_by_id(&self, id: &str) -> Option<Project> {
+        match tokio::runtime::Runtime::new()
+            .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))
+        {
+            Ok(rt) => rt.block_on(self.db.find_project_by_id(id)).unwrap_or(None),
+            Err(_) => None,
         }
     }
 
