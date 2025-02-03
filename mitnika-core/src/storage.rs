@@ -2,11 +2,10 @@ mod file_handler;
 mod sqlite_handler;
 
 use sqlite_handler::SQLiteDB;
-// use regex::Regex;
 
-use crate::Project;
+use crate::{MitnikaError, Project};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Storage {
     db: SQLiteDB,
 }
@@ -26,15 +25,35 @@ impl Storage {
         }
     }
 
-    pub fn add_project(&mut self, _project_name: &str) {
-        unimplemented!("implement add project")
+    pub fn add_project(&mut self, name: &str) {
+        if let Ok(rt) = tokio::runtime::Runtime::new()
+            .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))
+        {
+            let _ = rt.block_on(self.db.create_project(name));
+        }
     }
 
-    pub fn projects(&self) -> Vec<&Project> {
-        unimplemented!("implement get all projects")
+    pub fn projects(&self) -> Vec<Project> {
+        match tokio::runtime::Runtime::new()
+            .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))
+        {
+            Ok(rt) => rt.block_on(self.db.get_all_projects()).unwrap_or_default(),
+            Err(_) => vec![],
+        }
     }
 
-    pub fn search_projects(&self, _search: &str, _exact: bool) -> Vec<&Project> {
-        unimplemented!("implemented Search Projects");
+    pub fn search_projects(&self, search: &str, exact: bool) -> Vec<Project> {
+        if !search.is_empty() {
+            match tokio::runtime::Runtime::new()
+                .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))
+            {
+                Ok(rt) => rt
+                    .block_on(self.db.search_project(search, exact))
+                    .unwrap_or_default(),
+                Err(_) => vec![],
+            }
+        } else {
+            self.projects()
+        }
     }
 }

@@ -2,10 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::DEFAULT_STRING;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize, sqlx::FromRow)]
 pub struct Version {
-    #[serde(with = "uuid::serde::simple")]
-    id: uuid::Uuid,
+    id: String,
     name: String,
     content: String,
 }
@@ -13,7 +12,7 @@ pub struct Version {
 impl Default for Version {
     fn default() -> Self {
         Self {
-            id: uuid::Uuid::new_v4(),
+            id: uuid::Uuid::new_v4().to_string(),
             name: String::from(DEFAULT_STRING),
             content: String::new(),
         }
@@ -22,13 +21,13 @@ impl Default for Version {
 impl Version {
     pub fn new(name: &str) -> Self {
         Self {
-            id: uuid::Uuid::new_v4(),
+            id: uuid::Uuid::new_v4().to_string(),
             name: name.to_owned(),
             content: String::new(),
         }
     }
 
-    pub fn id(&self) -> &uuid::Uuid {
+    pub fn id(&self) -> &str {
         &self.id
     }
 

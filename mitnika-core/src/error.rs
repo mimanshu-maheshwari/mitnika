@@ -16,6 +16,7 @@ pub enum MitnikaError {
     ProjectUserDirectoryNotCreated,
     SQLiteFileNotCreated,
     SQLiteDBError(String),
+    RuntimeCreationError(String),
 }
 
 impl Error for MitnikaError {}
@@ -58,6 +59,7 @@ impl Display for MitnikaError {
             }
             Self::SQLiteDBError(e) => writeln!(f, "Error occured while db operation: {}", e),
             Self::SQLiteFileNotCreated => writeln!(f, "Unable to create SQLite file"),
+            Self::RuntimeCreationError(e) => writeln!(f, "Unable to create a runtime: {}", e),
         }
     }
 }

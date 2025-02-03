@@ -1,18 +1,19 @@
 mod environment;
 mod error;
-mod file_handler;
+mod file_details;
 mod project;
 mod storage;
 mod version;
 
 pub use environment::Environment;
 pub use error::MitnikaError;
-pub use file_handler::{FileHandler, FileHandlerBuilder};
-pub use project::{Project, ProjectBuilder};
+pub use file_details::FileDetails;
+pub use project::Project;
 pub use storage::Storage;
 pub use version::Version;
 
 pub type Result<T> = std::result::Result<T, MitnikaError>;
+
 // Mitnika default strings
 pub const DEFAULT_STRING: &str = "default";
 

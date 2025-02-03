@@ -1,8 +1,6 @@
-use std::sync::Arc;
-
 use sqlx::{migrate::MigrateDatabase, sqlite::SqliteQueryResult, Sqlite, SqlitePool};
 
-use crate::MitnikaError;
+use crate::{MitnikaError, Project};
 
 const TABLE_CREATEION_QUERY: &str = "PRAGMA foreign_keys = ON;
 
@@ -15,6 +13,7 @@ CREATE TABLE IF NOT EXISTS File (
     id TEXT PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     project_id TEXT NOT NULL,
+    creation_path TEXT NOT NULL,
     FOREIGN KEY (project_id) REFERENCES Project(id) ON DELETE CASCADE
 );
 
@@ -36,23 +35,35 @@ CREATE TABLE IF NOT EXISTS Version (
 const PROJECT_CREATE_PROJECT_QUERY: &str = "INSERT INTO Project (id, name) VALUES (?, ?);";
 const PROJECT_DELETE_PROJECT_QUERY: &str = "DELETE FROM Project WHERE id = ?;";
 const PROJECT_UPDATE_PROJECT_QUERY: &str = "UPDATE Project SET name = ? WHERE id = ?;";
+const PROJECT_FIND_PROJECT_LIKE: &str = "SELECT * FROM Project WHERE name LIKE CONCAT('%', ?, '%')";
+const PROJECT_FIND_PROJECT_BY_ID: &str = "SELECT * FROM Project WHERE id = ?";
+const PROJECT_FIND_PROJECT_LIKE_EXACT: &str = "SELECT * FROM Project WHERE name LIKE ?";
+const PROJECT_FIND_ALL_PROJECT: &str = "SELECT * FROM Project";
 
-const FILE_CREATE_FILE_QUERY: &str = "INSERT INTO File (id, name, project_id) VALUES (?, ?, ?);";
+const FILE_CREATE_FILE_QUERY: &str =
+    "INSERT INTO File (id, name, project_id, creation_path) VALUES (?, ?, ?, ?);";
 const FILE_DELETE_FILE_QUERY: &str = "DELETE FROM File WHERE id = ?;";
 const FILE_UPDATE_FILE_NAME_QUERY: &str = "UPDATE File SET name = ? WHERE id = ?;";
+const FILE_UPDATE_FILE_PATH_QUERY: &str = "UPDATE File SET creation_path = ? WHERE id = ?;";
+const FILE_FIND_FILE_LIKE: &str = "SELECT * FROM File WHERE name LIKE CONCAT('%', ?, '%')";
+const FILE_FIND_FILE_FOR_PROJECT: &str = "SELECT * FROM File WHERE name project_id = ?";
 
 const ENV_CREATE_ENVIRONMENT_QUERY: &str =
     "INSERT INTO Environment (id, name, file_id) VALUES (?, ?, ?);";
 const ENV_DELETE_ENVIRONMENT_QUERY: &str = "DELETE FROM Environment WHERE id = ?;";
 const ENV_UPDATE_ENV_NAME_QUERY: &str = "UPDATE Environment SET name = ? WHERE id = ?;";
+const ENV_FIND_ENV_LIKE: &str = "SELECT * FROM Environment WHERE name LIKE CONCAT('%', ?, '%')";
+const ENV_FIND_ENV_FOR_FILE: &str = "SELECT * FROM File WHERE name file_id = ?";
 
 const VERSION_CREATE_VERSION_QUERY: &str =
     "INSERT INTO Version (id, name, environment_id, content) VALUES (?, ?, ?, ?);";
 const VERSION_DELETE_VERSION_QUERY: &str = "DELETE FROM Version WHERE id = ?;";
 const VERSION_UPDATE_VERSION_NAME_QUERY: &str = "UPDATE Version SET name = ? WHERE id = ?;";
 const VERSION_UPDATE_CONTENT_QUERY: &str = "UPDATE Version SET content = ? WHERE id = ?;";
+const VERSION_FIND_VERSION_LIKE: &str = "SELECT * FROM Version WHERE name LIKE CONCAT('%', ?, '%')";
+const VERSION_FIND_VERSION_FOR_ENV: &str = "SELECT * FROM Version WHERE environment_id = ?";
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(super) struct SQLiteDB {
     pool: SqlitePool,
 }
@@ -87,27 +98,37 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    async fn create_schema(db_url: &str) -> std::result::Result<SqliteQueryResult, sqlx::Error> {
-        let pool = SqlitePool::connect(db_url).await?;
+    async fn create_schema(db_url: &str) -> std::result::Result<SqliteQueryResult, MitnikaError> {
+        let pool = SqlitePool::connect(db_url)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))?;
         let result = sqlx::query(TABLE_CREATEION_QUERY).execute(&pool).await;
         pool.close().await;
-        result
+        result.map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
     pub async fn create_project(
         &self,
-        id: &str,
         name: &str,
-    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
-        sqlx::query(PROJECT_CREATE_PROJECT_QUERY)
-            .bind(id)
+    ) -> std::result::Result<Option<Project>, MitnikaError> {
+        let id = uuid::Uuid::new_v4().to_string();
+        let result = sqlx::query(PROJECT_CREATE_PROJECT_QUERY)
+            .bind(&id)
             .bind(name)
             .execute(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))?;
+
+        println!("Added project: {result:?}");
+
+        sqlx::query_as(PROJECT_FIND_PROJECT_BY_ID)
+            .bind(&id)
+            .fetch_optional(&self.pool)
             .await
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn delete_project(
+    pub async fn _delete_project(
         &self,
         id: &str,
     ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
@@ -118,7 +139,7 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn update_project(
+    pub async fn _update_project(
         &self,
         id: &str,
         name: &str,
@@ -131,7 +152,31 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn create_file(
+    pub async fn get_all_projects(&self) -> std::result::Result<Vec<Project>, MitnikaError> {
+        sqlx::query_as(PROJECT_FIND_ALL_PROJECT)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+
+    pub async fn search_project(
+        &self,
+        search: &str,
+        exact: bool,
+    ) -> std::result::Result<Vec<Project>, MitnikaError> {
+        let query = if exact {
+            PROJECT_FIND_PROJECT_LIKE_EXACT
+        } else {
+            PROJECT_FIND_PROJECT_LIKE
+        };
+        sqlx::query_as(query)
+            .bind(search)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+
+    pub async fn _create_file(
         &self,
         id: &str,
         name: &str,
@@ -146,7 +191,7 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn delete_file(
+    pub async fn _delete_file(
         &self,
         id: &str,
     ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
@@ -157,7 +202,20 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn update_file_name(
+    pub async fn _update_file_path(
+        &self,
+        id: &str,
+        file_path: &str,
+    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
+        sqlx::query(FILE_UPDATE_FILE_PATH_QUERY)
+            .bind(file_path)
+            .bind(id)
+            .execute(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+
+    pub async fn _update_file_name(
         &self,
         id: &str,
         name: &str,
@@ -170,7 +228,29 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn create_environment(
+    pub async fn _find_file_for_project(
+        &self,
+        project_id: &str,
+    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
+        sqlx::query(FILE_FIND_FILE_FOR_PROJECT)
+            .bind(project_id)
+            .execute(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+
+    pub async fn _find_file_like(
+        &self,
+        search: &str,
+    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
+        sqlx::query(FILE_FIND_FILE_LIKE)
+            .bind(search)
+            .execute(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+
+    pub async fn _create_environment(
         &self,
         id: &str,
         name: &str,
@@ -185,7 +265,7 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn delete_environment(
+    pub async fn _delete_environment(
         &self,
         id: &str,
     ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
@@ -196,7 +276,7 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn update_environment_name(
+    pub async fn _update_environment_name(
         &self,
         id: &str,
         name: &str,
@@ -209,7 +289,29 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn create_version(
+    pub async fn _find_env_like(
+        &self,
+        search: &str,
+    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
+        sqlx::query(ENV_FIND_ENV_LIKE)
+            .bind(search)
+            .execute(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+
+    pub async fn _find_env_for_file(
+        &self,
+        file_id: &str,
+    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
+        sqlx::query(ENV_FIND_ENV_FOR_FILE)
+            .bind(file_id)
+            .execute(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+
+    pub async fn _create_version(
         &self,
         id: &str,
         name: &str,
@@ -226,7 +328,7 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn delete_version(
+    pub async fn _delete_version(
         &self,
         id: &str,
     ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
@@ -237,7 +339,7 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn update_version_name(
+    pub async fn _update_version_name(
         &self,
         id: &str,
         name: &str,
@@ -250,7 +352,7 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn update_version_content(
+    pub async fn _update_version_content(
         &self,
         id: &str,
         content: &str,
@@ -258,6 +360,28 @@ impl SQLiteDB {
         sqlx::query(VERSION_UPDATE_CONTENT_QUERY)
             .bind(content)
             .bind(id)
+            .execute(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+
+    pub async fn _find_version_like(
+        &self,
+        search: &str,
+    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
+        sqlx::query(VERSION_FIND_VERSION_LIKE)
+            .bind(search)
+            .execute(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+
+    pub async fn _find_version_for_env(
+        &self,
+        environment_id: &str,
+    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
+        sqlx::query(VERSION_FIND_VERSION_FOR_ENV)
+            .bind(environment_id)
             .execute(&self.pool)
             .await
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))

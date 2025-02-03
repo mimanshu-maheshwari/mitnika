@@ -1,12 +1,13 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize, sqlx::FromRow)]
-pub struct Project {
-    pub id: String,
-    pub name: String,
+pub struct FileDetails {
+    id: String,
+    name: String,
+    creation_path: String,
 }
 
-impl Project {
+impl FileDetails {
     pub fn id(&self) -> &str {
         &self.id
     }
@@ -14,7 +15,8 @@ impl Project {
     pub fn name(&self) -> &str {
         &self.name
     }
-}
 
-#[cfg(test)]
-mod tests {}
+    pub fn creation_path(&self) -> &str {
+        &self.creation_path
+    }
+}
