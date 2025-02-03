@@ -14,7 +14,6 @@ use crate::{
 pub struct MitnikaState {
     screen: MitnikaScreen,
     data: Storage,
-    // project_search: String,
     view: MitnikaView,
 }
 
@@ -34,7 +33,6 @@ impl MitnikaState {
     pub fn new() -> (Self, Task<MitnikaMessageKind>) {
         let data = Storage::new();
         let screen = MitnikaScreen::default();
-        let project_search = String::new();
         let view = MitnikaView::default();
         (
             Self {
@@ -55,8 +53,8 @@ impl MitnikaState {
                     screen.set_selected_project(project.clone());
                     self.screen = MitnikaScreen::Project(ProjectView::Show(screen));
                 }
-                ProjectMessage::Search(search_value) => {
-                    // self.project_search = search_value.clone();
+                ProjectMessage::Search(_search_value) => {
+                    todo!()
                 }
                 ProjectMessage::Create(project_name) => {
                     self.data.add_project(&project_name);
@@ -116,7 +114,7 @@ impl MitnikaState {
     pub fn sidebar(&self) -> Element<MitnikaMessageKind> {
         // search bar for projects
         let search = container(
-            text_input("Search Project", &self.project_search)
+            text_input("Search Project", "")
                 .on_input(|value| MitnikaMessageKind::Project(ProjectMessage::Search(value))),
         )
         .height(Length::FillPortion(1))

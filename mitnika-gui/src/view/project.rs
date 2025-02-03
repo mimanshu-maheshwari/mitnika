@@ -1,4 +1,4 @@
-use core::Project;
+use core::{FileDetails, Project};
 use iced::{
     widget::{button, column, container, row, text, text_input},
     Alignment, Element, Length,
@@ -48,7 +48,7 @@ impl ProjectShowScreen {
         let edit_button = container(button(text("Edit".to_owned())));
         let header_text = container(text(self.selected_project.name().to_owned()));
         let header_row = row![header_text, edit_button].spacing(10);
-        let files_name = self.selected_project.files().values();
+        let files_name: Vec<FileDetails> = vec![];
         let mut file_buttons = column![].spacing(10);
         for file_handler in files_name {
             file_buttons = file_buttons.push(
