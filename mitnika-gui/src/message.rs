@@ -1,4 +1,4 @@
-use core::{FileDetails, Project};
+use core::{FileDetails, ProjectDetails};
 
 #[derive(Debug, Clone)]
 pub enum MitnikaMessageKind {
@@ -8,7 +8,7 @@ pub enum MitnikaMessageKind {
 
 #[derive(Debug, Clone)]
 pub enum ProjectMessage {
-    Select(Project),
+    Select(ProjectDetails),
     Search(String),
     Create(String),
     SwitchToAddScreen,

@@ -1,4 +1,4 @@
-use core::{FileDetails, Project};
+use core::{FileDetails, ProjectDetails};
 use iced::{
     widget::{button, column, container, row, text, text_input},
     Alignment, Element, Length,
@@ -33,14 +33,14 @@ impl ProjectEmptyScreen {
 }
 #[derive(Debug, Clone, Default)]
 pub struct ProjectShowScreen {
-    selected_project: Project,
+    selected_project: ProjectDetails,
 }
 
 impl ProjectShowScreen {
     pub fn update(&mut self, _message: MitnikaMessageKind) {
         todo!();
     }
-    pub fn set_selected_project(&mut self, project: Project) {
+    pub fn set_selected_project(&mut self, project: ProjectDetails) {
         self.selected_project = project;
     }
 
@@ -78,14 +78,14 @@ impl ProjectShowScreen {
 
 #[derive(Debug, Clone, Default)]
 pub struct ProjectEditScreen {
-    selected_project: Project,
+    selected_project: ProjectDetails,
 }
 
 impl ProjectEditScreen {
     pub fn update(&mut self, _message: MitnikaMessageKind) {
         todo!();
     }
-    pub fn set_selected_project(&mut self, project: Project) {
+    pub fn set_selected_project(&mut self, project: ProjectDetails) {
         self.selected_project = project;
     }
 

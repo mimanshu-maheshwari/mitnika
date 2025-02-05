@@ -3,7 +3,7 @@ mod sqlite_handler;
 
 use sqlite_handler::SQLiteDB;
 
-use crate::{MitnikaError, Project};
+use crate::{MitnikaError, ProjectDetails};
 
 #[derive(Debug, Clone)]
 pub struct Storage {
@@ -25,7 +25,7 @@ impl Storage {
         }
     }
 
-    pub fn add_project(&self, name: &str) -> Option<Project> {
+    pub fn add_project(&self, name: &str) -> Option<ProjectDetails> {
         if let Ok(rt) = tokio::runtime::Runtime::new()
             .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))
         {
@@ -35,7 +35,7 @@ impl Storage {
         }
     }
 
-    pub fn projects(&self) -> Vec<Project> {
+    pub fn projects(&self) -> Vec<ProjectDetails> {
         match tokio::runtime::Runtime::new()
             .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))
         {
@@ -44,7 +44,7 @@ impl Storage {
         }
     }
 
-    pub fn project_by_id(&self, id: &str) -> Option<Project> {
+    pub fn project_by_id(&self, id: &str) -> Option<ProjectDetails> {
         match tokio::runtime::Runtime::new()
             .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))
         {
@@ -53,7 +53,7 @@ impl Storage {
         }
     }
 
-    pub fn search_projects(&self, search: &str, exact: bool) -> Vec<Project> {
+    pub fn search_projects(&self, search: &str, exact: bool) -> Vec<ProjectDetails> {
         if !search.is_empty() {
             match tokio::runtime::Runtime::new()
                 .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))

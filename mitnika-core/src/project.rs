@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize, sqlx::FromRow, Hash)]
-pub struct Project {
+pub struct ProjectDetails {
     pub id: String,
     pub name: String,
 }
 
-impl Project {
+impl ProjectDetails {
     pub fn id(&self) -> &str {
         &self.id
     }

@@ -3,12 +3,12 @@ use serde::{Deserialize, Serialize};
 use crate::DEFAULT_STRING;
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, sqlx::FromRow)]
-pub struct Environment {
+pub struct EnvironmentDetails {
     id: String,
     name: String,
 }
 
-impl Default for Environment {
+impl Default for EnvironmentDetails {
     fn default() -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
@@ -17,7 +17,7 @@ impl Default for Environment {
     }
 }
 
-impl Environment {
+impl EnvironmentDetails {
     pub fn new(name: &str) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),

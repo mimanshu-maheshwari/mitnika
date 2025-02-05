@@ -1,4 +1,4 @@
-use core::Project;
+use core::ProjectDetails;
 use iced::{
     widget::{row, text_input},
     Element,
@@ -35,7 +35,7 @@ impl FileShowScreen {
 #[derive(Debug, Clone, Default)]
 pub struct FileAddScreen {
     file_name: String,
-    _project: Project,
+    _project: ProjectDetails,
 }
 
 impl FileAddScreen {

@@ -1,4 +1,4 @@
-use core::Storage;
+use core::{ProjectDetails, Storage};
 
 use iced::{
     widget::{button, column, container, row, scrollable, text, text_input},
@@ -15,6 +15,7 @@ pub struct MitnikaState {
     screen: MitnikaScreen,
     data: Storage,
     view: MitnikaView,
+    project_search: String,
 }
 
 impl MitnikaState {
@@ -34,11 +35,12 @@ impl MitnikaState {
         let data = Storage::new();
         let screen = MitnikaScreen::default();
         let view = MitnikaView::default();
+        let project_search = String::new();
         (
             Self {
                 data,
                 screen,
-                // project_search,
+                project_search,
                 view,
             },
             Task::none(),
@@ -53,8 +55,8 @@ impl MitnikaState {
                     screen.set_selected_project(project.clone());
                     self.screen = MitnikaScreen::Project(ProjectView::Show(screen));
                 }
-                ProjectMessage::Search(_search_value) => {
-                    todo!()
+                ProjectMessage::Search(search_value) => {
+                    self.project_search = search_value;
                 }
                 ProjectMessage::Create(project_name) => {
                     self.data.add_project(&project_name);
@@ -114,7 +116,7 @@ impl MitnikaState {
     pub fn sidebar(&self) -> Element<MitnikaMessageKind> {
         // search bar for projects
         let search = container(
-            text_input("Search Project", "")
+            text_input("Search Project", &self.project_search)
                 .on_input(|value| MitnikaMessageKind::Project(ProjectMessage::Search(value))),
         )
         .height(Length::FillPortion(1))
@@ -124,7 +126,7 @@ impl MitnikaState {
 
         // projects selection buttons
         let mut buttons = column![].spacing(10);
-        let filterd_projects = self.data.search_projects("", false);
+        let filterd_projects = self.data.search_projects(&self.project_search, false);
         for project in filterd_projects {
             buttons = buttons.push(
                 button(text(project.name().to_owned()))

@@ -3,13 +3,13 @@ use serde::{Deserialize, Serialize};
 use crate::DEFAULT_STRING;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize, sqlx::FromRow)]
-pub struct Version {
+pub struct VersionDetails {
     id: String,
     name: String,
     content: String,
 }
 
-impl Default for Version {
+impl Default for VersionDetails {
     fn default() -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),
@@ -18,7 +18,7 @@ impl Default for Version {
         }
     }
 }
-impl Version {
+impl VersionDetails {
     pub fn new(name: &str) -> Self {
         Self {
             id: uuid::Uuid::new_v4().to_string(),

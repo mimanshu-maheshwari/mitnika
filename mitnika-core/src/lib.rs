@@ -5,12 +5,12 @@ mod project;
 mod storage;
 mod version;
 
-pub use environment::Environment;
+pub use environment::EnvironmentDetails;
 pub use error::MitnikaError;
 pub use file_details::FileDetails;
-pub use project::Project;
+pub use project::ProjectDetails;
 pub use storage::Storage;
-pub use version::Version;
+pub use version::VersionDetails;
 
 pub type Result<T> = std::result::Result<T, MitnikaError>;
 

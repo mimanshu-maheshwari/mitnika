@@ -1,10 +1,10 @@
-use core::{Project, Storage};
+use core::{ProjectDetails, Storage};
 use std::collections::HashSet;
 
 use clap::{Parser, Subcommand, ValueEnum};
 
 #[derive(Parser, Clone, Debug)]
-#[command(name = "cli_tool", about = "A CLI tool ")]
+#[command(name = "mitnika", about = "A CLI tool to manage to your secrets.")]
 struct Cli {
     #[command(subcommand)]
     command: EntityCommand,
@@ -113,7 +113,7 @@ fn main() {
                     let mut projects = storage
                         .search_projects(&name, false)
                         .into_iter()
-                        .collect::<HashSet<Project>>();
+                        .collect::<HashSet<ProjectDetails>>();
 
                     if let Some(project) = storage.project_by_id(&id) {
                         projects.insert(project);

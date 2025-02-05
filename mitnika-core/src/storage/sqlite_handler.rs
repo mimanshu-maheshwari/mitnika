@@ -1,6 +1,6 @@
 use sqlx::{migrate::MigrateDatabase, sqlite::SqliteQueryResult, Sqlite, SqlitePool};
 
-use crate::{MitnikaError, Project};
+use crate::{MitnikaError, ProjectDetails};
 
 const TABLE_CREATEION_QUERY: &str = "PRAGMA foreign_keys = ON;
 
@@ -110,7 +110,7 @@ impl SQLiteDB {
     pub async fn create_project(
         &self,
         name: &str,
-    ) -> std::result::Result<Option<Project>, MitnikaError> {
+    ) -> std::result::Result<Option<ProjectDetails>, MitnikaError> {
         if let Ok(projects) = self.search_project(name, true).await {
             if !projects.is_empty() {
                 return Err(MitnikaError::ProjectAlreadyExists);
@@ -130,7 +130,7 @@ impl SQLiteDB {
     pub async fn find_project_by_id(
         &self,
         id: &str,
-    ) -> std::result::Result<Option<Project>, MitnikaError> {
+    ) -> std::result::Result<Option<ProjectDetails>, MitnikaError> {
         sqlx::query_as(PROJECT_FIND_PROJECT_BY_ID)
             .bind(id)
             .fetch_optional(&self.pool)
@@ -162,7 +162,7 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn get_all_projects(&self) -> std::result::Result<Vec<Project>, MitnikaError> {
+    pub async fn get_all_projects(&self) -> std::result::Result<Vec<ProjectDetails>, MitnikaError> {
         sqlx::query_as(PROJECT_FIND_ALL_PROJECT)
             .fetch_all(&self.pool)
             .await
@@ -173,7 +173,7 @@ impl SQLiteDB {
         &self,
         search: &str,
         exact: bool,
-    ) -> std::result::Result<Vec<Project>, MitnikaError> {
+    ) -> std::result::Result<Vec<ProjectDetails>, MitnikaError> {
         let query = if exact {
             PROJECT_FIND_PROJECT_LIKE_EXACT
         } else {
