@@ -3,7 +3,7 @@ mod sqlite_handler;
 
 use sqlite_handler::SQLiteDB;
 
-use crate::{MitnikaError, ProjectDetails};
+use crate::{FileDetails, MitnikaError, ProjectDetails};
 
 #[derive(Debug, Clone)]
 pub struct Storage {
@@ -66,5 +66,25 @@ impl Storage {
         } else {
             self.projects()
         }
+    }
+
+    pub fn get_files_by_project_id(&self, project_id: &str) -> Vec<FileDetails> {
+        if !project_id.is_empty() {
+            match tokio::runtime::Runtime::new()
+                .map_err(|err| MitnikaError::RuntimeCreationError(err.to_string()))
+            {
+                Ok(rt) => rt
+                    .block_on(self.db.find_file_for_project(project_id))
+                    .unwrap_or_default(),
+                Err(_) => Default::default(),
+            }
+        } else {
+            Default::default()
+        }
+    }
+    pub fn add_file_to_project(&self, file_name: &str, creation_path: &str, project_id: &str) {
+        //validate if project is present
+        //validate if file is present
+        //validate creation_path
     }
 }

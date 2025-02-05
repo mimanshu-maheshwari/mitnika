@@ -35,7 +35,7 @@ impl FileShowScreen {
 #[derive(Debug, Clone, Default)]
 pub struct FileAddScreen {
     file_name: String,
-    _project: ProjectDetails,
+    project: ProjectDetails,
 }
 
 impl FileAddScreen {
@@ -43,8 +43,8 @@ impl FileAddScreen {
         todo!();
     }
 
-    pub fn update_project_name(&mut self, name: &str) {
-        self.file_name = name.to_owned();
+    pub fn update_file_name(&mut self, name: &str) {
+        todo!("update file name to be implemented");
     }
 
     pub fn view(&self) -> Element<MitnikaMessageKind> {

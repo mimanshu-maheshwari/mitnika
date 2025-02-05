@@ -1,4 +1,4 @@
-use core::{FileDetails, ProjectDetails};
+use core::{FileDetails, ProjectDetails, Storage};
 use iced::{
     widget::{button, column, container, row, text, text_input},
     Alignment, Element, Length,
@@ -34,14 +34,16 @@ impl ProjectEmptyScreen {
 #[derive(Debug, Clone, Default)]
 pub struct ProjectShowScreen {
     selected_project: ProjectDetails,
+    files: Vec<FileDetails>,
 }
 
 impl ProjectShowScreen {
     pub fn update(&mut self, _message: MitnikaMessageKind) {
         todo!();
     }
-    pub fn set_selected_project(&mut self, project: ProjectDetails) {
+    pub fn set_selected_project(&mut self, project: ProjectDetails, storage: &Storage) {
         self.selected_project = project;
+        self.files = storage.get_files_by_project_id(self.selected_project.id())
     }
 
     pub fn view(&self) -> Element<MitnikaMessageKind> {
@@ -111,7 +113,7 @@ impl ProjectAddScreen {
     }
 
     pub fn view(&self) -> Element<MitnikaMessageKind> {
-        row![
+        column![
             text_input("Enter name for project", &self.project_name)
                 .on_input(
                     |value| MitnikaMessageKind::Project(ProjectMessage::NewProjectName(value))

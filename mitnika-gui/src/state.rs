@@ -1,4 +1,4 @@
-use core::{ProjectDetails, Storage};
+use core::Storage;
 
 use iced::{
     widget::{button, column, container, row, scrollable, text, text_input},
@@ -52,7 +52,7 @@ impl MitnikaState {
             MitnikaMessageKind::Project(project_message) => match project_message {
                 ProjectMessage::Select(project) => {
                     let mut screen = ProjectShowScreen::default();
-                    screen.set_selected_project(project.clone());
+                    screen.set_selected_project(project, &self.data);
                     self.screen = MitnikaScreen::Project(ProjectView::Show(screen));
                 }
                 ProjectMessage::Search(search_value) => {
@@ -103,7 +103,7 @@ impl MitnikaState {
             },
         };
         let right_part = container(right_part)
-            .padding(10)
+            .padding(20)
             .width(Length::FillPortion(7))
             .height(Length::Fill)
             .align_x(Alignment::Start)

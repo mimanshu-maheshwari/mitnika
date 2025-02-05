@@ -18,6 +18,7 @@ pub enum MitnikaError {
     SQLiteDBError(String),
     RuntimeCreationError(String),
     ProjectAlreadyExists,
+    FileAlreadyExists,
 }
 
 impl Error for MitnikaError {}
@@ -62,6 +63,7 @@ impl Display for MitnikaError {
             Self::SQLiteFileNotCreated => writeln!(f, "Unable to create SQLite file"),
             Self::RuntimeCreationError(e) => writeln!(f, "Unable to create a runtime: {}", e),
             Self::ProjectAlreadyExists => writeln!(f, "Project already exists"),
+            Self::FileAlreadyExists => writeln!(f, "File already exists"),
         }
     }
 }

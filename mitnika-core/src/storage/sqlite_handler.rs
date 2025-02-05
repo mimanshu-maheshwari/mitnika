@@ -1,6 +1,6 @@
 use sqlx::{migrate::MigrateDatabase, sqlite::SqliteQueryResult, Sqlite, SqlitePool};
 
-use crate::{MitnikaError, ProjectDetails};
+use crate::{FileDetails, MitnikaError, ProjectDetails};
 
 const TABLE_CREATEION_QUERY: &str = "PRAGMA foreign_keys = ON;
 
@@ -37,7 +37,7 @@ const PROJECT_DELETE_PROJECT_QUERY: &str = "DELETE FROM Project WHERE id = ?;";
 const PROJECT_UPDATE_PROJECT_QUERY: &str = "UPDATE Project SET name = ? WHERE id = ?;";
 const PROJECT_FIND_PROJECT_LIKE: &str = "SELECT * FROM Project WHERE name LIKE CONCAT('%', ?, '%')";
 const PROJECT_FIND_PROJECT_BY_ID: &str = "SELECT * FROM Project WHERE id = ?";
-const PROJECT_FIND_PROJECT_LIKE_EXACT: &str = "SELECT * FROM Project WHERE name LIKE ?";
+const PROJECT_FIND_PROJECT_LIKE_EXACT: &str = "SELECT * FROM Project WHERE name = ?";
 const PROJECT_FIND_ALL_PROJECT: &str = "SELECT * FROM Project";
 
 const FILE_CREATE_FILE_QUERY: &str =
@@ -45,15 +45,18 @@ const FILE_CREATE_FILE_QUERY: &str =
 const FILE_DELETE_FILE_QUERY: &str = "DELETE FROM File WHERE id = ?;";
 const FILE_UPDATE_FILE_NAME_QUERY: &str = "UPDATE File SET name = ? WHERE id = ?;";
 const FILE_UPDATE_FILE_PATH_QUERY: &str = "UPDATE File SET creation_path = ? WHERE id = ?;";
-const FILE_FIND_FILE_LIKE: &str = "SELECT * FROM File WHERE name LIKE CONCAT('%', ?, '%')";
-const FILE_FIND_FILE_FOR_PROJECT: &str = "SELECT * FROM File WHERE name project_id = ?";
+const FILE_FIND_FILE_LIKE: &str =
+    "SELECT * FROM File WHERE name LIKE CONCAT('%', ?, '%') and project_id = ?;";
+const FILE_FIND_FILE_LIKE_EXACT: &str = "SELECT * FROM File WHERE name = ? and project_id = ?;";
+const FILE_FIND_FILE_FOR_PROJECT: &str = "SELECT * FROM File WHERE project_id = ?";
+const FILE_FIND_FILE_BY_ID: &str = "SELECT * FROM File WHERE id = ?";
 
 const ENV_CREATE_ENVIRONMENT_QUERY: &str =
     "INSERT INTO Environment (id, name, file_id) VALUES (?, ?, ?);";
 const ENV_DELETE_ENVIRONMENT_QUERY: &str = "DELETE FROM Environment WHERE id = ?;";
 const ENV_UPDATE_ENV_NAME_QUERY: &str = "UPDATE Environment SET name = ? WHERE id = ?;";
 const ENV_FIND_ENV_LIKE: &str = "SELECT * FROM Environment WHERE name LIKE CONCAT('%', ?, '%')";
-const ENV_FIND_ENV_FOR_FILE: &str = "SELECT * FROM File WHERE name file_id = ?";
+const ENV_FIND_ENV_FOR_FILE: &str = "SELECT * FROM File WHERE file_id = ?";
 
 const VERSION_CREATE_VERSION_QUERY: &str =
     "INSERT INTO Version (id, name, environment_id, content) VALUES (?, ?, ?, ?);";
@@ -186,19 +189,27 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn _create_file(
+    pub async fn create_file(
         &self,
-        id: &str,
         name: &str,
         project_id: &str,
-    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
+        creation_path: &str,
+    ) -> std::result::Result<Option<FileDetails>, MitnikaError> {
+        if let Ok(result) = self.find_file_like_in_project(name, project_id, true).await {
+            if !result.is_empty() {
+                return Err(MitnikaError::FileAlreadyExists);
+            }
+        }
+        let id = uuid::Uuid::new_v4().to_string();
         sqlx::query(FILE_CREATE_FILE_QUERY)
-            .bind(id)
+            .bind(&id)
             .bind(name)
             .bind(project_id)
+            .bind(creation_path)
             .execute(&self.pool)
             .await
-            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))?;
+        self.find_file_by_id(&id).await
     }
 
     pub async fn _delete_file(
@@ -238,24 +249,41 @@ impl SQLiteDB {
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn _find_file_for_project(
+    pub async fn find_file_for_project(
         &self,
         project_id: &str,
-    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
-        sqlx::query(FILE_FIND_FILE_FOR_PROJECT)
+    ) -> std::result::Result<Vec<FileDetails>, MitnikaError> {
+        sqlx::query_as(FILE_FIND_FILE_FOR_PROJECT)
             .bind(project_id)
-            .execute(&self.pool)
+            .fetch_all(&self.pool)
+            .await
+            .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
+    }
+    pub async fn find_file_by_id(
+        &self,
+        id: &str,
+    ) -> std::result::Result<Option<FileDetails>, MitnikaError> {
+        sqlx::query_as(FILE_FIND_FILE_BY_ID)
+            .bind(id)
+            .fetch_optional(&self.pool)
             .await
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
 
-    pub async fn _find_file_like(
+    pub async fn find_file_like_in_project(
         &self,
         search: &str,
-    ) -> std::result::Result<SqliteQueryResult, MitnikaError> {
-        sqlx::query(FILE_FIND_FILE_LIKE)
+        project_id: &str,
+        exact: bool,
+    ) -> std::result::Result<Vec<FileDetails>, MitnikaError> {
+        let query = match exact {
+            true => FILE_FIND_FILE_LIKE_EXACT,
+            false => FILE_FIND_FILE_LIKE,
+        };
+        sqlx::query_as(query)
             .bind(search)
-            .execute(&self.pool)
+            .bind(project_id)
+            .fetch_all(&self.pool)
             .await
             .map_err(|err| MitnikaError::SQLiteDBError(err.to_string()))
     }
